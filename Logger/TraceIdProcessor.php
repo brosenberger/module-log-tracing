@@ -1,36 +1,47 @@
 <?php
 declare(strict_types=1);
 
-namespace Brocode\RequestTrace\Logger;
+namespace Brocode\LogTracing\Logger;
 
-use Brocode\RequestTrace\Service\TraceId;
-use Monolog\LogRecord;
-use Monolog\Processor\ProcessorInterface;
+use Brocode\LogTracing\Service\TraceId;
 
 /**
  * Stamps the request-scoped trace ID onto the `extra` of every log record.
  *
- * Magento 2.4.8 ships Monolog 3, where the record is an immutable LogRecord
- * OBJECT and `extra` is the one writable property. The Monolog 2 array form
+ * Compatible with both Monolog 2 (Magento 2.4.4–2.4.7) and Monolog 3 (2.4.8+).
  *
- *     $record['extra']['trace_id'] = $id;   // <-- silently no-ops on Monolog 3
+ * Monolog 2: the record is a plain array  → mutate $record['extra']['trace_id'].
+ * Monolog 3: the record is a LogRecord object → mutate $record->extra['trace_id'].
+ *   Array access on a LogRecord returns a copy, so $record['extra'][...] = $x
+ *   silently does nothing in Monolog 3 — this is the most common gotcha.
  *
- * does nothing here, because array access on the object returns a copy. Mutate
- * the property and return the record.
+ * The discriminator is is_object(): every processor in Monolog only ever receives
+ * an array (v2) or a LogRecord (v3), so this is reliable without needing an
+ * instanceof check against a class that may not exist on the installed version.
  *
- * Runs for every record on every handler, so it must stay cheap — which it is,
- * because TraceId memoises after the first call.
+ * Intentionally does NOT implement ProcessorInterface: that interface was
+ * introduced in Monolog 3 and carries a typed LogRecord signature that is
+ * incompatible with Monolog 2. Magento's DI only requires a callable here.
+ *
+ * Runs for every record on every handler; must stay cheap — which it is, because
+ * TraceId memoises after the first call.
  */
-class TraceIdProcessor implements ProcessorInterface
+class TraceIdProcessor
 {
     public function __construct(
         private readonly TraceId $traceId
     ) {
     }
 
-    public function __invoke(LogRecord $record): LogRecord
+    public function __invoke(mixed $record): mixed
     {
-        $record->extra['trace_id'] = $this->traceId->get();
+        if (is_object($record)) {
+            // Monolog 3: LogRecord — extra is the writable property
+            $record->extra['trace_id'] = $this->traceId->get();
+        } else {
+            // Monolog 2: plain array
+            $record['extra']['trace_id'] = $this->traceId->get();
+        }
 
         return $record;
     }

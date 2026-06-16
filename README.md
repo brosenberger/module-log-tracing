@@ -1,11 +1,15 @@
-# Brocode_RequestTrace
+# Brocode_LogTracing
 
 A request-scoped **trace ID** for Magento 2 logs. Stamps one ID onto every log
 line produced during a request, echoes it back as an `X-Request-Id` response
 header, and gives you a single value to grep on when you need to reconstruct
 "what happened to *this* request" out of a busy `var/log`.
 
-Built for **Magento 2.4.8** (Monolog 3). Zero external dependencies.
+Compatible with **Magento 2.4.4–2.4.8+** (Monolog 2 and Monolog 3). Zero
+external dependencies.
+
+→ **[Read the full article on brocode.at](https://brocode.at/blog/magento-request-log-tracing)** — why trace IDs, how Monolog 2 and 3 differ, pitfall cheatsheet.
+→ **[Module page on brocode.at](https://brocode.at/modules/module-request-trace)** — install command, feature overview.
 
 ---
 
@@ -41,12 +45,21 @@ grep -rh '9f2c1ad4e0b74f3a8c5d6e7f' var/log/
 
 ## Install
 
-Drop the module in `app/code/Brocode/RequestTrace`, then:
+Drop the module in `app/code/Brocode/LogTracing`, then:
 
 ```bash
-bin/magento module:enable Brocode_RequestTrace
+bin/magento module:enable Brocode_LogTracing
 bin/magento setup:upgrade
 bin/magento setup:di:compile      # if running in production / compiled mode
+bin/magento cache:flush
+```
+
+Or via Composer once the package is published:
+
+```bash
+composer require brocode/module-log-tracing
+bin/magento module:enable Brocode_LogTracing
+bin/magento setup:upgrade
 bin/magento cache:flush
 ```
 
@@ -100,14 +113,16 @@ only job at the edge is to make sure an ID is present.
 Nginx has a built-in `$request_id` (32 hex chars). In the `location` block that
 proxies to PHP-FPM:
 
-```nginx
+```text
+# nginx: pass the built-in request ID to PHP-FPM
 fastcgi_param REQUEST_ID $request_id;
 ```
 
 The holder reads `$_SERVER['REQUEST_ID']`, so no PHP change is needed. Surface
 it in Nginx's own log too:
 
-```nginx
+```text
+# nginx: trace ID in access log
 log_format traced '$remote_addr - $request_time "$request" $status rid=$request_id';
 access_log /var/log/nginx/access.log traced;
 ```
@@ -121,7 +136,7 @@ forwarded to the backend whereas raw env vars are not always passed. Crucially,
 do this only when no upstream proxy already set the header, so an ID from a load
 balancer survives:
 
-```apache
+```text
 # /etc/apache2/conf-available/zz-request-trace.conf
 # Enable once:  a2enmod unique_id headers   then reload Apache.
 
@@ -277,7 +292,7 @@ the same headers onto your request:
 
 ```php
 public function __construct(
-    private readonly \Brocode\RequestTrace\Service\TraceId $traceId,
+    private readonly \Brocode\LogTracing\Service\TraceId $traceId,
     private readonly \GuzzleHttp\ClientInterface $http,
 ) {}
 
@@ -317,11 +332,22 @@ the transaction automatically as the `trace_id` custom parameter — no config.
 
 ---
 
+## Monolog version compatibility
+
+| Magento | Monolog | Record type | Processor receives |
+|---|---|---|---|
+| 2.4.4 – 2.4.7 | 2.x | `array` | `$record['extra']['trace_id']` |
+| 2.4.8+ | 3.x | `LogRecord` object | `$record->extra['trace_id']` |
+
+`TraceIdProcessor` uses `is_object($record)` to detect the version at runtime and
+takes the correct path — no configuration, no build-time switch. It deliberately
+does not implement `ProcessorInterface` (Monolog 3 only) so the class loads
+cleanly under both versions.
+
+---
+
 ## Notes & limits
 
-- **Monolog 3 only.** The processor uses the `LogRecord` object API
-  (`$record->extra[...]`). On Magento ≤ 2.4.7 (Monolog 2) the record is an
-  array; this module targets 2.4.8+.
 - **FPC / Varnish.** Fully cached responses bypass PHP, so they won't carry the
   `X-Request-Id` header. Dynamic responses will.
 - **Correlation, not spans.** This is a per-request correlation ID: it answers
@@ -335,7 +361,7 @@ the transaction automatically as the `trace_id` custom parameter — no config.
 ## File tree
 
 ```
-Brocode/RequestTrace/
+Brocode/LogTracing/
 ├── registration.php
 ├── composer.json
 ├── README.md

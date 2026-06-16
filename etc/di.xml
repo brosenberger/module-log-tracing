@@ -22,19 +22,19 @@
     <type name="Magento\Framework\Logger\Monolog">
         <arguments>
             <argument name="processors" xsi:type="array">
-                <item name="trace_id" xsi:type="object">Brocode\RequestTrace\Logger\TraceIdProcessor</item>
+                <item name="trace_id" xsi:type="object">Brocode\LogTracing\Logger\TraceIdProcessor</item>
             </argument>
             <argument name="handlers" xsi:type="array">
-                <item name="system" xsi:type="object">Brocode\RequestTrace\Logger\Handler\TracedSystem</item>
-                <item name="debug" xsi:type="object">Brocode\RequestTrace\Logger\Handler\TracedDebug</item>
+                <item name="system" xsi:type="object">Brocode\LogTracing\Logger\Handler\TracedSystem</item>
+                <item name="debug" xsi:type="object">Brocode\LogTracing\Logger\Handler\TracedDebug</item>
             </argument>
         </arguments>
     </type>
 
     <!-- Echo the trace ID back as the X-Request-Id response header. -->
     <type name="Magento\Framework\App\Response\Http">
-        <plugin name="brocode_request_trace_response_header"
-                type="Brocode\RequestTrace\Plugin\ResponseHeaderPlugin"
+        <plugin name="brocode_log_tracing_response_header"
+                type="Brocode\LogTracing\Plugin\ResponseHeaderPlugin"
                 sortOrder="10"/>
     </type>
 
@@ -42,8 +42,8 @@
          X-Dynatrace / B3 context) on outbound calls made via Magento's cURL
          client, so downstream services stay on the same trace. -->
     <type name="Magento\Framework\HTTP\Client\Curl">
-        <plugin name="brocode_request_trace_curl_forward"
-                type="Brocode\RequestTrace\Plugin\CurlForwardPlugin"
+        <plugin name="brocode_log_tracing_curl_forward"
+                type="Brocode\LogTracing\Plugin\CurlForwardPlugin"
                 sortOrder="10"/>
     </type>
 </config>

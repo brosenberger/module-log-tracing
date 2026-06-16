@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Brocode\RequestTrace\Service;
+namespace Brocode\LogTracing\Service;
 
 /**
  * Owns the request-scoped trace ID.
