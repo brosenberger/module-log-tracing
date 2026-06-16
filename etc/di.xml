@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!--
+      Wire into the main logger.
+
+      `processors`  adds the trace ID to every record's `extra`. Attaching it to
+                    the concrete Monolog type means virtual loggers that other
+                    modules build on top of it inherit it too.
+
+      `handlers`    replaces the two default handlers with versions that print
+                    the trace ID as a leading column. di.xml array items merge
+                    by name across modules, so only `system` and `debug` are
+                    affected — handlers added by other modules survive.
+
+      Want the trace ID only, without changing log formatting? Delete the whole
+      `handlers` argument below. The ID will still appear inside the default
+      `%extra%` JSON blob on every line, which is enough for grep and for
+      shipping structured logs to OpenSearch.
+    -->
+    <type name="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="trace_id" xsi:type="object">Brocode\RequestTrace\Logger\TraceIdProcessor</item>
+            </argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Brocode\RequestTrace\Logger\Handler\TracedSystem</item>
+                <item name="debug" xsi:type="object">Brocode\RequestTrace\Logger\Handler\TracedDebug</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Echo the trace ID back as the X-Request-Id response header. -->
+    <type name="Magento\Framework\App\Response\Http">
+        <plugin name="brocode_request_trace_response_header"
+                type="Brocode\RequestTrace\Plugin\ResponseHeaderPlugin"
+                sortOrder="10"/>
+    </type>
+
+    <!-- Forward the trace ID (and any inbound traceparent / SAP-PASSPORT /
+         X-Dynatrace / B3 context) on outbound calls made via Magento's cURL
+         client, so downstream services stay on the same trace. -->
+    <type name="Magento\Framework\HTTP\Client\Curl">
+        <plugin name="brocode_request_trace_curl_forward"
+                type="Brocode\RequestTrace\Plugin\CurlForwardPlugin"
+                sortOrder="10"/>
+    </type>
+</config>

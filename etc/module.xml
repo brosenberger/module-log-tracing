@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Brocode_RequestTrace
+ *
+ * No <sequence> needed: the only dependency is the framework logger, which is
+ * always present. Deliberately omits the deprecated setup_version attribute.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Brocode_RequestTrace"/>
+</config>
