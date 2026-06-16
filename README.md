@@ -9,7 +9,7 @@ Compatible with **Magento 2.4.4–2.4.8+** (Monolog 2 and Monolog 3). Zero
 external dependencies.
 
 → **[Read the full article on brocode.at](https://brocode.at/blog/magento-request-log-tracing)** — why trace IDs, how Monolog 2 and 3 differ, pitfall cheatsheet.
-→ **[Module page on brocode.at](https://brocode.at/modules/module-request-trace)** — install command, feature overview.
+→ **[Module page on brocode.at](https://brocode.at/modules/module-log-tracing)** — install command, feature overview.
 
 ---
 
