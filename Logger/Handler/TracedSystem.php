@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Brocode\LogTracing\Logger\Handler;
+namespace BroCode\LogTracing\Logger\Handler;
 
 use Magento\Framework\Logger\Handler\System;
 

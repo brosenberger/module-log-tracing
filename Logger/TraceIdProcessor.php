@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Brocode\LogTracing\Logger;
+namespace BroCode\LogTracing\Logger;
 
-use Brocode\LogTracing\Service\TraceId;
+use BroCode\LogTracing\Service\TraceId;
 
 /**
  * Stamps the request-scoped trace ID onto the `extra` of every log record.

@@ -5,7 +5,14 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Brocode"
+            "name": "Benjamin Rosenberger",
+            "email": "bensch.rosenberger@gmail.com"
+        }
+    ],
+    "funding": [
+        {
+            "type": "By me a coffee",
+            "url": "https://www.buymeacoffee.com/brosenberger"
         }
     ],
     "require": {
@@ -18,7 +25,7 @@
             "registration.php"
         ],
         "psr-4": {
-            "Brocode\\LogTracing\\": ""
+            "BroCode\\LogTracing\\": ""
         }
     }
 }

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Brocode\LogTracing\Plugin;
+namespace BroCode\LogTracing\Plugin;
 
-use Brocode\LogTracing\Service\TraceId;
+use BroCode\LogTracing\Service\TraceId;
 use Magento\Framework\App\Response\Http as HttpResponse;
 
 /**

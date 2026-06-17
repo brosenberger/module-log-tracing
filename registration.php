@@ -5,6 +5,6 @@ use Magento\Framework\Component\ComponentRegistrar;
 
 ComponentRegistrar::register(
     ComponentRegistrar::MODULE,
-    'Brocode_LogTracing',
+    'BroCode_LogTracing',
     __DIR__
 );
