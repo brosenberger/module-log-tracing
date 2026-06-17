@@ -355,6 +355,33 @@ cleanly under both versions.
   services, graduate to an APM trace view or OpenTelemetry (W3C Trace Context /
   `traceparent`). The `opentelemetry-php/contrib-auto-psr3` package fills
   `extra` the same way this processor does, but with IDs tied to real spans.
+- **Virtual types backed by a PHP subclass of Monolog are not auto-covered.**
+  The processor is registered on `Magento\Framework\Logger\Monolog` by type
+  name. Magento's DI resolves `<type>` arguments by class name, not by PHP
+  inheritance. If a module ships its own logger subclass —
+
+  ```php
+  class FooBarLogger extends Magento\Framework\Logger\Monolog { ... }
+  ```
+
+  — then virtual types of `FooBarLogger` are resolved against
+  `<type name="FooBarLogger">`, not against `<type name="Monolog">`, so the
+  processor is absent from those loggers. Fix: add one type entry per such
+  base class in your project's `di.xml`:
+
+  ```xml
+  <type name="Vendor\Module\Logger\FooBarLogger">
+      <arguments>
+          <argument name="processors" xsi:type="array">
+              <item name="trace_id" xsi:type="object">Brocode\LogTracing\Logger\TraceIdProcessor</item>
+          </argument>
+      </arguments>
+  </type>
+  ```
+
+  This covers every virtual type built on `FooBarLogger` in one shot. Verify
+  coverage by checking `var/log/<thatmodule>.log` for the trace ID after a
+  request.
 
 ---
 
