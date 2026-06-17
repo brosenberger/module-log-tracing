@@ -358,7 +358,9 @@ cleanly under both versions.
 - **Virtual types backed by a PHP subclass of Monolog are not auto-covered.**
   The processor is registered on `Magento\Framework\Logger\Monolog` by type
   name. Magento's DI resolves `<type>` arguments by class name, not by PHP
-  inheritance. If a module ships its own logger subclass —
+  inheritance. The [Adobe-recommended custom logger pattern](https://experienceleague.adobe.com/en/docs/commerce-operations/configuration-guide/logs/custom-log-files)
+  uses virtual types directly of `Monolog` and is covered automatically. The
+  gap only appears when a module ships its own logger subclass —
 
   ```php
   class FooBarLogger extends Magento\Framework\Logger\Monolog { ... }
