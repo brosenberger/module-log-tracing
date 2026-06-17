@@ -1,4 +1,4 @@
-# Brocode_LogTracing
+# BroCode_LogTracing
 
 A request-scoped **trace ID** for Magento 2 logs. Stamps one ID onto every log
 line produced during a request, echoes it back as an `X-Request-Id` response
@@ -48,7 +48,7 @@ grep -rh '9f2c1ad4e0b74f3a8c5d6e7f' var/log/
 Drop the module in `app/code/Brocode/LogTracing`, then:
 
 ```bash
-bin/magento module:enable Brocode_LogTracing
+bin/magento module:enable BroCode_LogTracing
 bin/magento setup:upgrade
 bin/magento setup:di:compile      # if running in production / compiled mode
 bin/magento cache:flush
@@ -58,7 +58,7 @@ Or via Composer once the package is published:
 
 ```bash
 composer require brocode/module-log-tracing
-bin/magento module:enable Brocode_LogTracing
+bin/magento module:enable BroCode_LogTracing
 bin/magento setup:upgrade
 bin/magento cache:flush
 ```
@@ -292,7 +292,7 @@ the same headers onto your request:
 
 ```php
 public function __construct(
-    private readonly \Brocode\LogTracing\Service\TraceId $traceId,
+    private readonly \BroCode\LogTracing\Service\TraceId $traceId,
     private readonly \GuzzleHttp\ClientInterface $http,
 ) {}
 
@@ -375,7 +375,7 @@ cleanly under both versions.
   <type name="Vendor\Module\Logger\FooBarLogger">
       <arguments>
           <argument name="processors" xsi:type="array">
-              <item name="trace_id" xsi:type="object">Brocode\LogTracing\Logger\TraceIdProcessor</item>
+              <item name="trace_id" xsi:type="object">BroCode\LogTracing\Logger\TraceIdProcessor</item>
           </argument>
       </arguments>
   </type>
