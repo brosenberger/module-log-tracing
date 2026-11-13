@@ -1,6 +1,7 @@
 {
     "name": "brocode/module-log-tracing",
     "description": "Request-scoped trace ID for Magento 2 logs. Stamps every log line, echoes an X-Request-Id response header, and gives a single ID to correlate web logs, app logs, and downstream calls for one request. Compatible with Monolog 2 (Magento 2.4.4–2.4.7) and Monolog 3 (Magento 2.4.8+).",
+    "homepage": "https://brocode.at/modules/module-log-tracing/",
     "type": "magento2-module",
     "license": "MIT",
     "authors": [
